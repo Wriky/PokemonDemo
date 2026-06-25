@@ -62,8 +62,8 @@ struct PokemonArtworkView: View {
 
     private var artworkPlaceholder: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(heroTint.opacity(0.25))
+            Color.clear
+            
             Image(systemName: "sparkles")
                 .font(.system(size: 48))
                 .foregroundStyle(heroTint)
