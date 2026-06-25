@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		94FED60D2FBD6504001612B5 /* HotelDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HotelDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		94FED60D2FBD6504001612B5 /* PokemonDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PokemonDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		94FED60F2FBD6504001612B5 /* HotelDemo */ = {
+		94FED60F2FBD6504001612B5 /* PokemonDemo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HotelDemo;
+			path = PokemonDemo;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		94FED6042FBD6504001612B5 = {
 			isa = PBXGroup;
 			children = (
-				94FED60F2FBD6504001612B5 /* HotelDemo */,
+				94FED60F2FBD6504001612B5 /* PokemonDemo */,
 				94FED60E2FBD6504001612B5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +40,7 @@
 		94FED60E2FBD6504001612B5 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				94FED60D2FBD6504001612B5 /* HotelDemo.app */,
+				94FED60D2FBD6504001612B5 /* PokemonDemo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		94FED60C2FBD6504001612B5 /* HotelDemo */ = {
+		94FED60C2FBD6504001612B5 /* PokemonDemo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 94FED6182FBD6507001612B5 /* Build configuration list for PBXNativeTarget "HotelDemo" */;
+			buildConfigurationList = 94FED6182FBD6507001612B5 /* Build configuration list for PBXNativeTarget "PokemonDemo" */;
 			buildPhases = (
 				94FED6092FBD6504001612B5 /* Sources */,
 				94FED60A2FBD6504001612B5 /* Frameworks */,
@@ -61,13 +61,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				94FED60F2FBD6504001612B5 /* HotelDemo */,
+				94FED60F2FBD6504001612B5 /* PokemonDemo */,
 			);
-			name = HotelDemo;
+			name = PokemonDemo;
 			packageProductDependencies = (
 			);
-			productName = HotelDemo;
-			productReference = 94FED60D2FBD6504001612B5 /* HotelDemo.app */;
+			productName = PokemonDemo;
+			productReference = 94FED60D2FBD6504001612B5 /* PokemonDemo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 94FED6082FBD6504001612B5 /* Build configuration list for PBXProject "HotelDemo" */;
+			buildConfigurationList = 94FED6082FBD6504001612B5 /* Build configuration list for PBXProject "PokemonDemo" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				94FED60C2FBD6504001612B5 /* HotelDemo */,
+				94FED60C2FBD6504001612B5 /* PokemonDemo */,
 			);
 		};
 /* End PBXProject section */
@@ -261,12 +261,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yue.HotelDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yue.PokemonDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -293,12 +294,13 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yue.HotelDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yue.PokemonDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -313,7 +315,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		94FED6082FBD6504001612B5 /* Build configuration list for PBXProject "HotelDemo" */ = {
+		94FED6082FBD6504001612B5 /* Build configuration list for PBXProject "PokemonDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				94FED6162FBD6507001612B5 /* Debug */,
@@ -322,7 +324,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		94FED6182FBD6507001612B5 /* Build configuration list for PBXNativeTarget "HotelDemo" */ = {
+		94FED6182FBD6507001612B5 /* Build configuration list for PBXNativeTarget "PokemonDemo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				94FED6192FBD6507001612B5 /* Debug */,
