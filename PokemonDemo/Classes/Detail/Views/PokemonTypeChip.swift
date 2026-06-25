@@ -10,14 +10,18 @@ struct PokemonTypeChip: View {
 
     var body: some View {
         Text(typeName.capitalized)
-            .font(.subheadline.weight(.semibold))
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .font(.system(.subheadline, design: .rounded, weight: .bold))
+            .foregroundStyle(chipColor)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
             .background(
                 Capsule(style: .continuous)
-                    .fill(chipColor.opacity(0.35))
+                    .fill(chipColor.opacity(0.14))
             )
+            .overlay {
+                Capsule(style: .continuous)
+                    .stroke(chipColor.opacity(0.28), lineWidth: 1)
+            }
             .accessibilityLabel("\(typeName.capitalized) type")
     }
 

@@ -317,8 +317,8 @@ struct SearchView: View {
 }
 
 private enum PokemonSearchTheme {
-    static let pokedexRed = Color(red: 0.90, green: 0.12, blue: 0.17)
-    static let pokedexDarkRed = Color(red: 0.58, green: 0.04, blue: 0.09)
+    static let pokedexRed = Color(red: 1.0, green: 0.28, blue: 0.30)
+    static let pokedexDarkRed = Color(red: 0.98, green: 0.42, blue: 0.38)
     static let screenBlue = Color(red: 0.08, green: 0.57, blue: 0.78)
     static let pageBackground = Color(
         uiColor: UIColor { traits in
