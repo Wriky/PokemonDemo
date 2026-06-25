@@ -41,33 +41,12 @@ struct SearchView: View {
                                         placeholderName: pokemon.name.capitalized
                                     )
                                 } label: {
-                                    VStack(alignment: .leading, spacing: 6) {
-                                        Text(pokemon.name.capitalized)
-                                            .font(.headline)
-
-                                        if pokemon.abilityNames.isEmpty {
-                                            Text("No abilities found")
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                        } else {
-                                            Text(pokemon.abilityNames.joined(separator: ", "))
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                                .lineLimit(2)
-                                        }
-                                    }
+                                    PokemonSearchRow(pokemon: pokemon)
                                 }
                                 .listRowBackground(rowBackgroundColor(for: species.color?.name))
                             }
                         } header: {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(species.name.capitalized)
-                                    .font(.headline)
-                                Text("Capture Rate: \(species.captureRate ?? 0)")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                            .textCase(nil)
+                            PokemonSpeciesSectionHeader(species: species)
                         }
                     }
 

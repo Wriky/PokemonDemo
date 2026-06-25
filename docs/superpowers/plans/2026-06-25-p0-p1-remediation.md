@@ -1,12 +1,14 @@
 # PokemonDemo P0/P1 Remediation Implementation Plan
 
+> **Status note (2026-06-25):** The original Apollo Repository and `AsyncImage` portions of this historical plan were superseded by `2026-06-25-apollo-data-layer-refactor.md`. The final implementation uses `PokemonRepository` → `ApolloPokemonRemoteDataSource` → `ApolloPokemonGraphQLExecutor`, app-owned DTO/domain mapping, Apollo normalized in-memory caching, and a cached `URLSession` artwork loader with ordered fallbacks.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Replace the handwritten GraphQL client with Apollo iOS v2, add repository-based dependency injection, and ship an independently loaded Hero-style Pokémon detail page while preserving all existing quiz behavior.
 
-**Architecture:** Apollo-generated query types remain inside the data layer. `ApolloPokemonRepository` maps generated results into application-owned `PokemonSpecies`, `Pokemon`, and `PokemonDetail` models consumed by MainActor ViewModels. Search retains explicit debouncing and pagination; detail performs its own repository request and renders a state-driven SwiftUI Hero layout.
+**Architecture:** Apollo-generated query types remain inside the data layer. The superseding implementation separates Repository, RemoteDataSource, and GraphQL Executor responsibilities before mapping application DTOs into `PokemonSpecies`, `Pokemon`, and `PokemonDetail` domain models consumed by MainActor ViewModels. Search retains explicit debouncing and pagination; detail performs its own repository request and renders a state-driven SwiftUI Hero layout.
 
-**Tech Stack:** Swift 5, SwiftUI, async/await, Apollo iOS v2, Swift Package Manager, Apollo Codegen CLI, XCTest, `AsyncImage`.
+**Tech Stack:** Swift 5, SwiftUI, async/await, Apollo iOS v2, Swift Package Manager, Apollo Codegen CLI, XCTest, URLSession, URLCache.
 
 ---
 
@@ -305,56 +307,37 @@ git add PokemonDemo/Classes/Network/Models PokemonDemo/Classes/Network/Repositor
 git commit -m "feat: define Pokemon repository contract"
 ```
 
-### Task 5: Implement Apollo client and repository mapping
+### Task 5: Implement the Apollo data-layer boundaries
 
 **Files:**
 - Create: `PokemonDemo/Classes/Network/Apollo/ApolloClientProvider.swift`
-- Create: `PokemonDemo/Classes/Network/Repositories/ApolloPokemonRepository.swift`
+- Create: `PokemonDemo/Classes/Network/Apollo/ApolloPokemonGraphQLExecutor.swift`
+- Create: `PokemonDemo/Classes/Network/DataSources/ApolloPokemonRemoteDataSource.swift`
+- Create: `PokemonDemo/Classes/Network/Repositories/PokemonRepository.swift`
 - Modify: `PokemonDemoTests/PokemonDemoTests.swift`
 
 - [ ] Add mapping tests using generated selection-set initializers or `ApolloTestSupport` mocks for:
   - Search species name, capture rate, color, Pokémon, and ability mapping.
   - Detail name, abilities, types, height, weight, capture rate, and color mapping.
   - Apollo GraphQL errors translated into the repository error message.
-- [ ] Verify the mapping tests fail because the repository does not exist.
-- [ ] Add:
-
-```swift
-import Apollo
-
-enum ApolloClientProvider {
-    static let shared = ApolloClient(
-        url: URL(string: "https://beta.pokeapi.co/graphql/v1beta")!
-    )
-}
-```
-
-- [ ] Define:
+- [ ] Verify the mapping tests fail because the new boundaries do not exist.
+- [ ] Construct the endpoint without force unwrap and create the Apollo client through `ApolloClientProvider`.
 
 ```swift
 enum PokemonRepositoryError: LocalizedError, Equatable {
     case noData
-    case graphQL(String)
-    case transport(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .noData:
-            return "The server returned no usable Pokemon data."
-        case let .graphQL(message), let .transport(message):
-            return message
-        }
-    }
+    case unavailable
+    case invalidData
+    case server(String)
 }
 ```
 
-- [ ] Implement `ApolloPokemonRepository` with injected `ApolloClientProtocol` or an application-owned Apollo client abstraction:
-  - Search fetch policy: `.returnCacheDataAndFetch`.
-  - Detail fetch policy: `.returnCacheDataAndFetch`.
-  - Continuation resumes exactly once.
+- [ ] Implement the executor, DataSource, and Repository with narrow injected protocols:
+  - Apollo fetch policy: `.cacheAndNetwork`.
+  - The final cache-and-network response is authoritative.
   - GraphQL errors are checked before data mapping.
   - `%keyword%`, limit, and offset are passed through generated variables.
-- [ ] Map generated operation data into app-owned models in small private mapper methods.
+- [ ] Map generated operation data into DTOs in the DataSource, then DTOs into domain models in `PokemonRepository`.
 - [ ] Run repository tests, then commit:
 
 ```bash
@@ -377,7 +360,7 @@ git commit -m "feat: implement Apollo Pokemon repository"
 ```swift
 private let repository: any PokemonRepositoryProtocol
 
-init(repository: any PokemonRepositoryProtocol = ApolloPokemonRepository()) {
+init(repository: any PokemonRepositoryProtocol = PokemonRepository.production) {
     self.repository = repository
 }
 ```
@@ -436,7 +419,7 @@ final class PokemonDetailViewModel: ObservableObject {
     init(
         pokemonID: Int,
         placeholderName: String,
-        repository: any PokemonRepositoryProtocol = ApolloPokemonRepository()
+        repository: any PokemonRepositoryProtocol = PokemonRepository.production
     ) {
         self.pokemonID = pokemonID
         self.placeholderName = placeholderName
@@ -486,7 +469,8 @@ git commit -m "feat: load Pokemon detail independently"
 - [ ] Implement loading state with a centered `ProgressView` and descriptive accessibility label.
 - [ ] Implement failure state with message and Retry button invoking `await viewModel.load()`.
 - [ ] Implement Hero content:
-  - `AsyncImage` with `detail.artworkURL`.
+  - `PokemonArtworkView` backed by the cached `PokemonArtworkLoader`.
+  - Ordered official-artwork, standard, and home sprite fallbacks derived from Pokémon ID.
   - 240-point maximum artwork size.
   - Name and `#ID`.
   - Type chips using semantic colors.

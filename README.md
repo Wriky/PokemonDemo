@@ -12,9 +12,11 @@ SwiftUI demo app for searching Pokémon species via the PokeAPI GraphQL endpoint
 ## Architecture
 
 - **UI:** SwiftUI with `NavigationStack`
-- **Pattern:** MVVM with manual repository injection
+- **Pattern:** MVVM with manual protocol-based dependency injection
 - **Networking:** Apollo iOS v2 with checked-in schema and generated operations
-- **Data:** `ApolloPokemonRepository` maps generated GraphQL types into app-owned models
+- **Data flow:** ViewModel → `PokemonRepository` → `ApolloPokemonRemoteDataSource` → `ApolloPokemonGraphQLExecutor` → Apollo
+- **Boundaries:** Generated GraphQL types are converted to app-owned DTOs before Repository mapping into domain models
+- **Caching:** Apollo's normalized in-memory cache is the only GraphQL response cache
 - **Concurrency:** Swift 6 strict concurrency with `@MainActor` ViewModels
 
 ## Requirements
@@ -62,7 +64,8 @@ Generated sources are written to `PokemonDemo/Classes/Network/Generated`.
 ## Detail Page
 
 - Detail loads independently by Pokémon ID through `PokemonRepositoryProtocol`.
-- Artwork uses the official PokeAPI sprites CDN URL derived from Pokémon ID.
+- Artwork uses an ordered set of PokeAPI sprite URLs derived from Pokémon ID.
+- A dedicated `URLSession` uses memory/disk `URLCache`, retries transient failures, and falls back across artwork sources.
 - Hero layout shows artwork, name, ID, type chips, abilities, and basic stats.
 
 ## Tests
@@ -75,7 +78,7 @@ xcodebuild test \
   CODE_SIGNING_ALLOWED=NO
 ```
 
-Coverage includes welcome persistence, debounce, stale search protection, pagination offsets, detail loading/retry, and artwork URL construction.
+Coverage includes DTO/domain mapping, Repository forwarding and error translation, Apollo DataSource mapping, executor cache/network behavior, artwork fallback, welcome persistence, debounce, stale search protection, pagination, and detail loading/retry.
 
 ## Physical Device Check
 

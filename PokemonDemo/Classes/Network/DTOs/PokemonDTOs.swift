@@ -1,30 +1,25 @@
-//
-//  PokemonModels.swift
-//  PokemonDemo
-//
-
 import Foundation
 
-nonisolated struct PokemonSpecies: Identifiable, Hashable, Sendable, Equatable {
+nonisolated struct PokemonSpeciesDTO: Equatable, Sendable {
     let id: Int
     let name: String
     let captureRate: Int?
-    let color: PokemonColor?
-    let pokemons: [Pokemon]
+    let color: PokemonColorDTO?
+    let pokemons: [PokemonDTO]
 }
 
-nonisolated struct PokemonColor: Hashable, Sendable, Equatable {
+nonisolated struct PokemonColorDTO: Equatable, Sendable {
     let id: Int
     let name: String
 }
 
-nonisolated struct Pokemon: Identifiable, Hashable, Sendable, Equatable {
+nonisolated struct PokemonDTO: Equatable, Sendable {
     let id: Int
     let name: String
     let abilityNames: [String]
 }
 
-nonisolated struct PokemonDetail: Equatable, Sendable {
+nonisolated struct PokemonDetailDTO: Equatable, Sendable {
     let id: Int
     let name: String
     let abilityNames: [String]

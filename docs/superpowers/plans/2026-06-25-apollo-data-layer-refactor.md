@@ -1,5 +1,7 @@
 # Apollo Data Layer Refactor Implementation Plan
 
+> **Implementation status (2026-06-25): Complete.** All seven tasks were implemented and verified on the connected iPhone. The final suite contains 24 passing tests, and the signed app was built, installed, and launched successfully.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Refactor the complete Pokémon data layer around Apollo iOS, isolate generated types, add deterministic tests, and close the remaining review findings without changing product behavior.

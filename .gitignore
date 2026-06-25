@@ -4,3 +4,5 @@ apollo-ios-cli
 apollo-ios-cli.tar.gz
 *.pdf
 *.docx
+xcuserdata/
+*.xcuserdatad/

@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		941CB7302FED2359007DD428 /* Apollo in Frameworks */ = {isa = PBXBuildFile; productRef = B20000022F00000000000002 /* Apollo */; };
+		941CB7312FED2359007DD428 /* ApolloTestSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B20000032F00000000000003 /* ApolloTestSupport */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A10000092F00000000000009 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -39,6 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				941CB7302FED2359007DD428 /* Apollo in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +52,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				941CB7312FED2359007DD428 /* ApolloTestSupport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

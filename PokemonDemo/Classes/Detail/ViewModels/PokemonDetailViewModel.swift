@@ -19,7 +19,7 @@ final class PokemonDetailViewModel: ObservableObject {
     init(
         pokemonID: Int,
         placeholderName: String,
-        repository: any PokemonRepositoryProtocol = ApolloPokemonRepository()
+        repository: any PokemonRepositoryProtocol = PokemonRepository.production
     ) {
         self.pokemonID = pokemonID
         self.placeholderName = placeholderName

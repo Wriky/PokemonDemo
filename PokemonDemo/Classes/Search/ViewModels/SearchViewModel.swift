@@ -22,7 +22,7 @@ final class SearchViewModel: ObservableObject {
     private var latestSearchRequestID = 0
     private var currentSearchKeyword = ""
 
-    init(repository: any PokemonRepositoryProtocol = ApolloPokemonRepository()) {
+    init(repository: any PokemonRepositoryProtocol = PokemonRepository.production) {
         self.repository = repository
     }
 

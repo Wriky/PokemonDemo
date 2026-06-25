@@ -30,10 +30,13 @@ The following report items are already implemented and must remain covered:
 ## Repository and Dependency Injection
 
 - Introduce a `PokemonRepositoryProtocol` with search and detail methods.
-- Implement `ApolloPokemonRepository` using the injected `ApolloClient`.
+- Implement `PokemonRepository` as the domain-facing mapper and error-translation boundary.
+- Keep generated GraphQL types inside `ApolloPokemonGraphQLExecutor` and `ApolloPokemonRemoteDataSource`.
+- Convert generated results into application-owned DTOs before mapping them into domain models.
+- Make the executor the only component that owns and invokes `ApolloClient`.
 - Inject the repository into both Search and Detail ViewModels.
 - Keep default initializers for production convenience while allowing protocol-based fakes in tests.
-- Update tests to use repository fakes and Apollo-compatible error cases.
+- Update tests to use Repository, DataSource, and executor fakes at their respective boundaries.
 - Do not add Swinject; manual initializer injection is sufficient and keeps the demo lightweight.
 
 ## Search
@@ -65,8 +68,9 @@ The following report items are already implemented and must remain covered:
   - Type chips.
   - Ability cards/chips.
   - Compact basic-stat row for height, weight, and capture rate.
-- Load Pokémon artwork using `AsyncImage`.
-- Use the official PokeAPI sprites repository URL derived from Pokémon ID.
+- Load Pokémon artwork using a dedicated async `URLSession` loader.
+- Use ordered official PokeAPI sprite URLs derived from Pokémon ID, stopping after the first valid image.
+- Use memory/disk `URLCache` and bounded retries for artwork requests.
 - Show a styled placeholder when an image is unavailable.
 - Tint the Hero background using the species color at a readable opacity.
 - Support Dynamic Type, light/dark appearance, and VoiceOver labels.
@@ -90,10 +94,13 @@ The following report items are already implemented and must remain covered:
 - Preserve the existing welcome and debounce tests.
 - Update stale-search tests to use a repository fake.
 - Add tests for:
-  - Search response mapping and pagination offsets.
+  - DTO-to-domain mapping and invalid required values.
+  - Repository forwarding and error translation.
+  - Search/detail DataSource mapping and pagination variables.
+  - Apollo cache-and-network final response handling.
   - Detail loading success.
   - Detail error and retry.
-  - Sprite URL construction.
+  - Sprite URL construction and fallback stopping behavior.
   - Apollo GraphQL error translation.
 - Run all tests and build the generic iOS device target.
 - Final user acceptance is performed on a physical iPhone, per user preference.

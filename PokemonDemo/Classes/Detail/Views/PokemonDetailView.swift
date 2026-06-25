@@ -121,7 +121,7 @@ struct PokemonDetailView: View {
 
     private func heroSection(_ detail: PokemonDetail) -> some View {
         VStack(spacing: 12) {
-            PokemonArtworkView(url: detail.artworkURL, colorName: detail.colorName)
+            PokemonArtworkView(pokemonID: detail.id, colorName: detail.colorName)
 
             Text(detail.name.capitalized)
                 .font(.largeTitle.bold())
