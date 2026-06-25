@@ -20,7 +20,11 @@ final class SearchDebouncer: ObservableObject {
             }
 
             guard !Task.isCancelled else { return }
-            await action()
+            pendingTask = nil
+
+            Task {
+                await action()
+            }
         }
     }
 

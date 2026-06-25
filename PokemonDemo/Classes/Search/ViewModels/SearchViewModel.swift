@@ -22,6 +22,7 @@ final class SearchViewModel: ObservableObject {
     private var currentOffset = 0
     private var canLoadMore = false
     private var latestSearchRequestID = 0
+    private var currentSearchKeyword = ""
 
     init(service: any PokemonServicing = PokemonService()) {
         self.service = service
@@ -45,8 +46,10 @@ final class SearchViewModel: ObservableObject {
 
         latestSearchRequestID += 1
         let requestID = latestSearchRequestID
+        currentSearchKeyword = keyword
 
         isLoading = true
+        isLoadingMore = false
         hasSearched = true
         errorMessage = nil
         currentOffset = 0
@@ -76,23 +79,34 @@ final class SearchViewModel: ObservableObject {
     func loadMore() async {
         guard shouldShowLoadMore, !isLoadingMore else { return }
 
+        let requestID = latestSearchRequestID
+        let keyword = currentSearchKeyword
+        let offset = currentOffset
+
         isLoadingMore = true
         errorMessage = nil
 
         do {
             let moreResults = try await service.searchSpecies(
-                keyword: trimmedKeyword,
+                keyword: keyword,
                 limit: pageSize,
-                offset: currentOffset
+                offset: offset
             )
+            guard requestID == latestSearchRequestID,
+                  keyword == currentSearchKeyword else { return }
             speciesList.append(contentsOf: moreResults)
-            currentOffset += moreResults.count
+            currentOffset = offset + moreResults.count
             canLoadMore = moreResults.count == pageSize
         } catch {
+            guard requestID == latestSearchRequestID,
+                  keyword == currentSearchKeyword else { return }
             errorMessage = error.localizedDescription
         }
 
-        isLoadingMore = false
+        if requestID == latestSearchRequestID,
+           keyword == currentSearchKeyword {
+            isLoadingMore = false
+        }
     }
 
     private var trimmedKeyword: String {
