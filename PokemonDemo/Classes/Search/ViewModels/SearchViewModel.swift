@@ -2,8 +2,6 @@
 //  SearchViewModel.swift
 //  PokemonDemo
 //
-//  Created by Riky Wang on 2026/5/20.
-//
 
 import Foundation
 import Combine
@@ -17,15 +15,15 @@ final class SearchViewModel: ObservableObject {
     @Published private(set) var errorMessage: String?
     @Published private(set) var hasSearched = false
 
-    private let service: any PokemonServicing
+    private let repository: any PokemonRepositoryProtocol
     private let pageSize = 20
     private var currentOffset = 0
     private var canLoadMore = false
     private var latestSearchRequestID = 0
     private var currentSearchKeyword = ""
 
-    init(service: any PokemonServicing = PokemonService()) {
-        self.service = service
+    init(repository: any PokemonRepositoryProtocol = ApolloPokemonRepository()) {
+        self.repository = repository
     }
 
     var isSearchDisabled: Bool {
@@ -55,7 +53,7 @@ final class SearchViewModel: ObservableObject {
         currentOffset = 0
 
         do {
-            let results = try await service.searchSpecies(
+            let results = try await repository.searchSpecies(
                 keyword: keyword,
                 limit: pageSize,
                 offset: currentOffset
@@ -87,7 +85,7 @@ final class SearchViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            let moreResults = try await service.searchSpecies(
+            let moreResults = try await repository.searchSpecies(
                 keyword: keyword,
                 limit: pageSize,
                 offset: offset

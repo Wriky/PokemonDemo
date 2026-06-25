@@ -2,11 +2,6 @@ import XCTest
 @testable import PokemonDemo
 
 final class PokemonDemoTests: XCTestCase {
-    override func tearDown() {
-        URLProtocolStub.requestHandler = nil
-        super.tearDown()
-    }
-
     func testHomeViewModelReadsAndWritesInjectedDefaults() {
         let suiteName = "PokemonDemoTests.Home.\(UUID().uuidString)"
         let defaults = UserDefaults(suiteName: suiteName)!
@@ -63,28 +58,28 @@ final class PokemonDemoTests: XCTestCase {
     }
 
     func testNewerSearchResultWinsWhenOlderRequestFinishesLast() async {
-        let service = ControlledPokemonService()
-        let viewModel = SearchViewModel(service: service)
+        let repository = ControlledPokemonRepository()
+        let viewModel = SearchViewModel(repository: repository)
 
         viewModel.keyword = "old"
         let oldSearch = Task {
             await viewModel.search()
         }
 
-        await service.waitForRequest(keyword: "old", offset: 0)
+        await repository.waitForRequest(keyword: "old", offset: 0)
 
         viewModel.keyword = "new"
         let newSearch = Task {
             await viewModel.search()
         }
 
-        await service.waitForRequest(keyword: "new", offset: 0)
-        service.complete(
+        await repository.waitForRequest(keyword: "new", offset: 0)
+        repository.complete(
             keyword: "new",
             offset: 0,
             with: [makeSpecies(id: 2, name: "new")]
         )
-        service.complete(
+        repository.complete(
             keyword: "old",
             offset: 0,
             with: [makeSpecies(id: 1, name: "old")]
@@ -97,15 +92,15 @@ final class PokemonDemoTests: XCTestCase {
     }
 
     func testOldPaginationResponseCannotMutateNewSearchState() async {
-        let service = ControlledPokemonService()
-        let viewModel = SearchViewModel(service: service)
+        let repository = ControlledPokemonRepository()
+        let viewModel = SearchViewModel(repository: repository)
 
         viewModel.keyword = "old"
         let initialSearch = Task {
             await viewModel.search()
         }
-        await service.waitForRequest(keyword: "old", offset: 0)
-        service.complete(
+        await repository.waitForRequest(keyword: "old", offset: 0)
+        repository.complete(
             keyword: "old",
             offset: 0,
             with: makeSpeciesPage(prefix: "old", startID: 1, count: 20)
@@ -115,21 +110,21 @@ final class PokemonDemoTests: XCTestCase {
         let oldPagination = Task {
             await viewModel.loadMore()
         }
-        await service.waitForRequest(keyword: "old", offset: 20)
+        await repository.waitForRequest(keyword: "old", offset: 20)
 
         viewModel.keyword = "new"
         let newSearch = Task {
             await viewModel.search()
         }
-        await service.waitForRequest(keyword: "new", offset: 0)
-        service.complete(
+        await repository.waitForRequest(keyword: "new", offset: 0)
+        repository.complete(
             keyword: "new",
             offset: 0,
             with: makeSpeciesPage(prefix: "new", startID: 101, count: 20)
         )
         await newSearch.value
 
-        service.complete(
+        repository.complete(
             keyword: "old",
             offset: 20,
             with: [makeSpecies(id: 21, name: "stale-page")]
@@ -143,53 +138,119 @@ final class PokemonDemoTests: XCTestCase {
         let newPagination = Task {
             await viewModel.loadMore()
         }
-        await service.waitForRequest(keyword: "new", offset: 20)
-        service.complete(keyword: "new", offset: 20, with: [])
+        await repository.waitForRequest(keyword: "new", offset: 20)
+        repository.complete(keyword: "new", offset: 20, with: [])
         await newPagination.value
     }
 
-    func testGraphQLErrorIsReportedWhenDataIsNull() async throws {
-        let configuration = URLSessionConfiguration.ephemeral
-        configuration.protocolClasses = [URLProtocolStub.self]
-        URLProtocolStub.requestHandler = { request in
-            let response = HTTPURLResponse(
-                url: request.url!,
-                statusCode: 200,
-                httpVersion: nil,
-                headerFields: ["Content-Type": "application/json"]
-            )!
-            let data = Data(#"{"data":null,"errors":[{"message":"boom"}]}"#.utf8)
-            return (response, data)
-        }
+    func testPaginationCallsOffsetsZeroThenTwenty() async {
+        let repository = ControlledPokemonRepository()
+        let viewModel = SearchViewModel(repository: repository)
 
-        let service = PokemonService(session: URLSession(configuration: configuration))
-
-        do {
-            _ = try await service.searchSpecies(keyword: "pik", limit: 20, offset: 0)
-            XCTFail("Expected a GraphQL server error")
-        } catch let error as PokemonServiceError {
-            guard case let .serverError(message) = error else {
-                return XCTFail("Expected serverError, got \(error)")
-            }
-            XCTAssertEqual(message, "boom")
-        } catch {
-            XCTFail("Expected PokemonServiceError, got \(error)")
+        viewModel.keyword = "pika"
+        let initialSearch = Task {
+            await viewModel.search()
         }
+        await repository.waitForRequest(keyword: "pika", offset: 0)
+        repository.complete(
+            keyword: "pika",
+            offset: 0,
+            with: makeSpeciesPage(prefix: "pika", startID: 1, count: 20)
+        )
+        await initialSearch.value
+
+        let pagination = Task {
+            await viewModel.loadMore()
+        }
+        await repository.waitForRequest(keyword: "pika", offset: 20)
+        repository.complete(keyword: "pika", offset: 20, with: [])
+        await pagination.value
+
+        XCTAssertEqual(repository.requestedOffsets, [0, 20])
+    }
+
+    func testPokemonDetailBuildsOfficialArtworkURLFromID() {
+        let detail = PokemonDetail(
+            id: 25,
+            name: "pikachu",
+            abilityNames: [],
+            typeNames: [],
+            height: 4,
+            weight: 60,
+            captureRate: 190,
+            colorName: "yellow"
+        )
+
+        XCTAssertEqual(
+            detail.artworkURL?.absoluteString,
+            "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png"
+        )
+    }
+
+    func testDetailViewModelLoadsIndependentDetail() async {
+        let repository = PokemonRepositoryFake(
+            detailResult: .success(.fixture(name: "pikachu"))
+        )
+        let viewModel = PokemonDetailViewModel(
+            pokemonID: 25,
+            placeholderName: "Pikachu",
+            repository: repository
+        )
+
+        await viewModel.load()
+
+        XCTAssertEqual(viewModel.detail?.name, "pikachu")
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testDetailViewModelRetriesAfterFailure() async {
+        let repository = PokemonRepositoryFake(
+            detailResults: [
+                .failure(PokemonRepositoryError.graphQL("boom")),
+                .success(.fixture(name: "pikachu"))
+            ]
+        )
+        let viewModel = PokemonDetailViewModel(
+            pokemonID: 25,
+            placeholderName: "Pikachu",
+            repository: repository
+        )
+
+        await viewModel.load()
+        XCTAssertEqual(viewModel.errorMessage, "boom")
+        XCTAssertNil(viewModel.detail)
+
+        await viewModel.load()
+        XCTAssertEqual(viewModel.detail?.name, "pikachu")
+        XCTAssertNil(viewModel.errorMessage)
+    }
+
+    func testRepositoryErrorDescriptions() {
+        XCTAssertEqual(
+            PokemonRepositoryError.graphQL("boom").errorDescription,
+            "boom"
+        )
+        XCTAssertEqual(
+            PokemonRepositoryError.noData.errorDescription,
+            "The server returned no usable Pokemon data."
+        )
     }
 }
 
 @MainActor
-private final class ControlledPokemonService: PokemonServicing {
+private final class ControlledPokemonRepository: PokemonRepositoryProtocol {
     private struct RequestKey: Hashable {
         let keyword: String
         let offset: Int
     }
 
+    private(set) var requestedOffsets: [Int] = []
     private var requests: Set<RequestKey> = []
     private var requestWaiters: [RequestKey: [CheckedContinuation<Void, Never>]] = [:]
     private var responseContinuations: [RequestKey: CheckedContinuation<[PokemonSpecies], Never>] = [:]
 
     func searchSpecies(keyword: String, limit: Int, offset: Int) async throws -> [PokemonSpecies] {
+        requestedOffsets.append(offset)
         let key = RequestKey(keyword: keyword, offset: offset)
         requests.insert(key)
         requestWaiters.removeValue(forKey: key)?.forEach { $0.resume() }
@@ -197,6 +258,11 @@ private final class ControlledPokemonService: PokemonServicing {
         return await withCheckedContinuation { continuation in
             responseContinuations[key] = continuation
         }
+    }
+
+    func pokemonDetail(id: Int) async throws -> PokemonDetail {
+        XCTFail("Detail should not be requested in search-only tests")
+        throw PokemonRepositoryError.noData
     }
 
     func waitForRequest(keyword: String, offset: Int) async {
@@ -211,6 +277,31 @@ private final class ControlledPokemonService: PokemonServicing {
     func complete(keyword: String, offset: Int, with species: [PokemonSpecies]) {
         let key = RequestKey(keyword: keyword, offset: offset)
         responseContinuations.removeValue(forKey: key)?.resume(returning: species)
+    }
+}
+
+@MainActor
+private final class PokemonRepositoryFake: PokemonRepositoryProtocol {
+    private var detailResults: [Result<PokemonDetail, Error>]
+
+    init(detailResult: Result<PokemonDetail, Error>) {
+        self.detailResults = [detailResult]
+    }
+
+    init(detailResults: [Result<PokemonDetail, Error>]) {
+        self.detailResults = detailResults
+    }
+
+    func searchSpecies(keyword: String, limit: Int, offset: Int) async throws -> [PokemonSpecies] {
+        []
+    }
+
+    func pokemonDetail(id: Int) async throws -> PokemonDetail {
+        guard !detailResults.isEmpty else {
+            throw PokemonRepositoryError.noData
+        }
+        let result = detailResults.removeFirst()
+        return try result.get()
     }
 }
 
@@ -250,32 +341,17 @@ private func makeSpeciesPage(prefix: String, startID: Int, count: Int) -> [Pokem
     }
 }
 
-private final class URLProtocolStub: URLProtocol, @unchecked Sendable {
-    nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
-
-    nonisolated override class func canInit(with request: URLRequest) -> Bool {
-        true
+private extension PokemonDetail {
+    static func fixture(name: String) -> PokemonDetail {
+        PokemonDetail(
+            id: 25,
+            name: name,
+            abilityNames: ["static"],
+            typeNames: ["electric"],
+            height: 4,
+            weight: 60,
+            captureRate: 190,
+            colorName: "yellow"
+        )
     }
-
-    nonisolated override class func canonicalRequest(for request: URLRequest) -> URLRequest {
-        request
-    }
-
-    nonisolated override func startLoading() {
-        guard let handler = Self.requestHandler else {
-            client?.urlProtocol(self, didFailWithError: URLError(.badServerResponse))
-            return
-        }
-
-        do {
-            let (response, data) = try handler(request)
-            client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
-            client?.urlProtocol(self, didLoad: data)
-            client?.urlProtocolDidFinishLoading(self)
-        } catch {
-            client?.urlProtocol(self, didFailWithError: error)
-        }
-    }
-
-    nonisolated override func stopLoading() {}
 }

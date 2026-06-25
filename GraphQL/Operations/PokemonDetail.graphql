@@ -1,0 +1,25 @@
+query PokemonDetail($id: Int!) {
+  pokemon_v2_pokemon_by_pk(id: $id) {
+    id
+    name
+    height
+    weight
+    pokemon_v2_pokemonabilities(order_by: { id: asc }) {
+      id
+      pokemon_v2_ability {
+        name
+      }
+    }
+    pokemon_v2_pokemontypes(order_by: { slot: asc }) {
+      pokemon_v2_type {
+        name
+      }
+    }
+    pokemon_v2_pokemonspecy {
+      capture_rate
+      pokemon_v2_pokemoncolor {
+        name
+      }
+    }
+  }
+}

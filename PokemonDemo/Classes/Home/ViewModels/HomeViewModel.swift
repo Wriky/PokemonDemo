@@ -2,12 +2,11 @@
 //  HomeViewModel.swift
 //  PokemonDemo
 //
-//  Created by Riky Wang on 2026/5/20.
-//
 
 import Foundation
 import Combine
 
+@MainActor
 final class HomeViewModel: ObservableObject {
     private let welcomeStorageKey = "alreadyEntered"
     private let defaults: UserDefaults

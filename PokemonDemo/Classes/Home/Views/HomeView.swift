@@ -11,7 +11,13 @@ struct HomeView: View {
     @StateObject private var viewModel: HomeViewModel
     @State private var hasSeenWelcome: Bool
 
-    init(viewModel: HomeViewModel = HomeViewModel()) {
+    init() {
+        let viewModel = HomeViewModel()
+        _viewModel = StateObject(wrappedValue: viewModel)
+        _hasSeenWelcome = State(initialValue: viewModel.hasSeenWelcome)
+    }
+
+    init(viewModel: HomeViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
         _hasSeenWelcome = State(initialValue: viewModel.hasSeenWelcome)
     }

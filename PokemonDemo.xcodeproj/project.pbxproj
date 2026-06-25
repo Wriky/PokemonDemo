@@ -90,6 +90,7 @@
 			);
 			name = PokemonDemo;
 			packageProductDependencies = (
+				B20000022F00000000000002 /* Apollo */,
 			);
 			productName = PokemonDemo;
 			productReference = 94FED60D2FBD6504001612B5 /* PokemonDemo.app */;
@@ -113,6 +114,7 @@
 			);
 			name = PokemonDemoTests;
 			packageProductDependencies = (
+				B20000032F00000000000003 /* ApolloTestSupport */,
 			);
 			productName = PokemonDemoTests;
 			productReference = A10000012F00000000000001 /* PokemonDemoTests.xctest */;
@@ -146,6 +148,9 @@
 			);
 			mainGroup = 94FED6042FBD6504001612B5;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B20000012F00000000000001 /* XCRemoteSwiftPackageReference "apollo-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 94FED60E2FBD6504001612B5 /* Products */;
 			projectDirPath = "";
@@ -458,6 +463,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B20000012F00000000000001 /* XCRemoteSwiftPackageReference "apollo-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apollographql/apollo-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B20000022F00000000000002 /* Apollo */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B20000012F00000000000001 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			productName = Apollo;
+		};
+		B20000032F00000000000003 /* ApolloTestSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B20000012F00000000000001 /* XCRemoteSwiftPackageReference "apollo-ios" */;
+			productName = ApolloTestSupport;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 94FED6052FBD6504001612B5 /* Project object */;
 }

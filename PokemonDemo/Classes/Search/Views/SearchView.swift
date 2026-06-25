@@ -11,19 +11,7 @@ struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
     @StateObject private var searchDebouncer = SearchDebouncer()
     @FocusState private var isSearchFieldFocused: Bool
-    private let defaultRowColor = Color(uiColor: .secondarySystemBackground)
-    private let colorMap: [String: Color] = [
-        "black": Color.black.opacity(0.18),
-        "blue": Color.blue.opacity(0.18),
-        "brown": Color.brown.opacity(0.18),
-        "gray": Color.gray.opacity(0.18),
-        "green": Color.green.opacity(0.18),
-        "pink": Color.pink.opacity(0.18),
-        "purple": Color.purple.opacity(0.18),
-        "red": Color.red.opacity(0.18),
-        "white": Color(uiColor: .systemBackground),
-        "yellow": Color.yellow.opacity(0.18)
-    ]
+    private let colorOpacity = 0.5
 
     var body: some View {
         NavigationStack {
@@ -48,7 +36,10 @@ struct SearchView: View {
                         Section {
                             ForEach(species.pokemons) { pokemon in
                                 NavigationLink {
-                                    PokemonDetailView(pokemon: pokemon)
+                                    PokemonDetailView(
+                                        pokemonID: pokemon.id,
+                                        placeholderName: pokemon.name.capitalized
+                                    )
                                 } label: {
                                     VStack(alignment: .leading, spacing: 6) {
                                         Text(pokemon.name.capitalized)
@@ -166,10 +157,6 @@ struct SearchView: View {
     }
 
     private func rowBackgroundColor(for colorName: String?) -> Color {
-        guard let colorName else {
-            return defaultRowColor
-        }
-
-        return colorMap[colorName.lowercased()] ?? defaultRowColor
+        PokemonColorPalette.background(for: colorName, opacity: colorOpacity)
     }
 }

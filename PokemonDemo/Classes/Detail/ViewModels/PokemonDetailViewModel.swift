@@ -2,25 +2,40 @@
 //  PokemonDetailViewModel.swift
 //  PokemonDemo
 //
-//  Created by Riky Wang on 2026/5/20.
-//
 
 import Foundation
 import Combine
 
 @MainActor
 final class PokemonDetailViewModel: ObservableObject {
-    let pokemon: Pokemon
+    @Published private(set) var detail: PokemonDetail?
+    @Published private(set) var isLoading = false
+    @Published private(set) var errorMessage: String?
 
-    init(pokemon: Pokemon) {
-        self.pokemon = pokemon
+    let placeholderName: String
+    private let pokemonID: Int
+    private let repository: any PokemonRepositoryProtocol
+
+    init(
+        pokemonID: Int,
+        placeholderName: String,
+        repository: any PokemonRepositoryProtocol = ApolloPokemonRepository()
+    ) {
+        self.pokemonID = pokemonID
+        self.placeholderName = placeholderName
+        self.repository = repository
     }
 
-    var title: String {
-        pokemon.name.capitalized
-    }
+    func load() async {
+        guard !isLoading else { return }
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
 
-    var abilitiesText: [String] {
-        pokemon.abilityNames
+        do {
+            detail = try await repository.pokemonDetail(id: pokemonID)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }

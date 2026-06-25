@@ -1,0 +1,26 @@
+query SearchPokemonSpecies($pattern: String!, $limit: Int!, $offset: Int!) {
+  pokemon_v2_pokemonspecies(
+    where: { name: { _ilike: $pattern } }
+    limit: $limit
+    offset: $offset
+    order_by: { id: asc }
+  ) {
+    id
+    name
+    capture_rate
+    pokemon_v2_pokemoncolor {
+      id
+      name
+    }
+    pokemon_v2_pokemons(order_by: { id: asc }) {
+      id
+      name
+      pokemon_v2_pokemonabilities(order_by: { id: asc }) {
+        id
+        pokemon_v2_ability {
+          name
+        }
+      }
+    }
+  }
+}
