@@ -9,44 +9,70 @@ struct PokemonSpeciesSectionHeader: View {
     let species: PokemonSpecies
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 8) {
-                if let colorName = species.color?.name {
-                    Circle()
-                        .fill(PokemonColorPalette.color(for: colorName))
-                        .frame(width: 12, height: 12)
-                        .accessibilityHidden(true)
+        let accent = PokemonColorPalette.color(for: species.color?.name)
+
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(String(format: "SPECIES #PCS-%03d", species.id))
+                        .font(.system(.caption2, design: .monospaced, weight: .bold))
+                        .tracking(0.8)
+                        .foregroundStyle(accent)
+
+                    Text(species.name.capitalized)
+                        .font(.system(.title2, design: .rounded, weight: .black))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
                 }
 
-                Text("Species")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(Color(.label))
+                Spacer(minLength: 8)
 
-                Text(species.name.capitalized)
-                    .font(.headline.weight(.bold))
-                    .foregroundStyle(Color(.label))
+                VStack(alignment: .trailing, spacing: 3) {
+                    Text("CAPTURE")
+                        .font(.system(.caption2, design: .rounded, weight: .bold))
+                        .tracking(0.7)
+                        .foregroundStyle(.secondary)
+
+                    Text(PokemonSearchPresentation.captureRate(species.captureRate))
+                        .font(.system(.title3, design: .monospaced, weight: .black))
+                        .foregroundStyle(.primary)
+                }
             }
 
-            Text("Capture Rate: \(species.captureRate ?? 0)")
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(Color(.label))
+            HStack(spacing: 8) {
+                Image(systemName: "circle.grid.2x2.fill")
+                    .font(.caption)
+                    .foregroundStyle(accent)
 
-            Text(tapHint)
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.primary)
+                Text(PokemonSearchPresentation.formHint(count: species.pokemons.count))
+                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Text("COLOR \(species.color?.name.uppercased() ?? "UNKNOWN")")
+                    .font(.system(.caption2, design: .monospaced, weight: .bold))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 9)
+                    .padding(.vertical, 5)
+                    .background(
+                        Capsule(style: .continuous)
+                            .fill(accent.opacity(0.13))
+                    )
+            }
         }
-        .textCase(nil)
+        .padding(.leading, 20)
+        .padding(.trailing, 18)
+        .padding(.top, 18)
+        .padding(.bottom, 15)
+        .background(
+            LinearGradient(
+                colors: [accent.opacity(0.13), accent.opacity(0.025)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .accessibilityElement(children: .combine)
-    }
-
-    private var tapHint: String {
-        switch species.pokemons.count {
-        case 0:
-            return "No Pokémon forms found under this species."
-        case 1:
-            return "Tap the Pokémon below for details."
-        default:
-            return "\(species.pokemons.count) forms under this species — tap any name for details."
-        }
     }
 }

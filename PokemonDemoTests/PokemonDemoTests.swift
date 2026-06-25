@@ -5,6 +5,25 @@ import UIKit
 @testable import PokemonDemo
 
 final class PokemonDemoTests: XCTestCase {
+    func testSearchPresentationUsesSingularFormHint() {
+        XCTAssertEqual(
+            PokemonSearchPresentation.formHint(count: 1),
+            "1 discovered form"
+        )
+    }
+
+    func testSearchPresentationUsesPluralFormHint() {
+        XCTAssertEqual(
+            PokemonSearchPresentation.formHint(count: 3),
+            "3 discovered forms"
+        )
+    }
+
+    func testSearchPresentationFormatsMissingCaptureRateAsUnknown() {
+        XCTAssertEqual(PokemonSearchPresentation.captureRate(nil), "—")
+        XCTAssertEqual(PokemonSearchPresentation.captureRate(45), "45")
+    }
+
     func testPokemonMapperMapsSpeciesAndNormalizesAbilityNames() throws {
         let dto = PokemonSpeciesDTO(
             id: 25,
