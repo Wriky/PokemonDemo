@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject private var viewModel = HomeViewModel()
-    @State private var hasSeenWelcome = false
+    @StateObject private var viewModel: HomeViewModel
+    @State private var hasSeenWelcome: Bool
+
+    init(viewModel: HomeViewModel = HomeViewModel()) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        _hasSeenWelcome = State(initialValue: viewModel.hasSeenWelcome)
+    }
 
     var body: some View {
         Group {
@@ -21,9 +26,6 @@ struct HomeView: View {
                     hasSeenWelcome = true
                 }
             }
-        }
-        .onAppear {
-            hasSeenWelcome = viewModel.hasSeenWelcome
         }
     }
 }

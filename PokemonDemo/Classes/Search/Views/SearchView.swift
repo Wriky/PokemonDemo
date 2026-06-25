@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewModel()
+    @StateObject private var searchDebouncer = SearchDebouncer()
     @FocusState private var isSearchFieldFocused: Bool
     private let defaultRowColor = Color(uiColor: .secondarySystemBackground)
     private let colorMap: [String: Color] = [
@@ -107,6 +108,9 @@ struct SearchView: View {
             }
             .navigationTitle("Pokemon Search")
             .navigationBarTitleDisplayMode(.inline)
+            .onDisappear {
+                searchDebouncer.cancel()
+            }
         }
     }
 
@@ -153,9 +157,10 @@ struct SearchView: View {
     }
 
     private func performSearch() {
+        guard !viewModel.isSearchDisabled, !viewModel.isLoading else { return }
         isSearchFieldFocused = false
 
-        Task {
+        searchDebouncer.schedule {
             await viewModel.search()
         }
     }

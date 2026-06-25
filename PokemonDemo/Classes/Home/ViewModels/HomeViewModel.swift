@@ -10,12 +10,17 @@ import Combine
 
 final class HomeViewModel: ObservableObject {
     private let welcomeStorageKey = "alreadyEntered"
+    private let defaults: UserDefaults
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+    }
 
     var hasSeenWelcome: Bool {
-        UserDefaults.standard.bool(forKey: welcomeStorageKey)
+        defaults.bool(forKey: welcomeStorageKey)
     }
 
     func completeWelcome() {
-        UserDefaults.standard.set(true, forKey: welcomeStorageKey)
+        defaults.set(true, forKey: welcomeStorageKey)
     }
 }

@@ -7,7 +7,11 @@
 
 import Foundation
 
-struct PokemonService {
+protocol PokemonServicing {
+    func searchSpecies(keyword: String, limit: Int, offset: Int) async throws -> [PokemonSpecies]
+}
+
+struct PokemonService: PokemonServicing {
     private let endpoint = URL(string: "https://beta.pokeapi.co/graphql/v1beta")!
     private let session: URLSession
 
@@ -42,7 +46,11 @@ struct PokemonService {
             throw PokemonServiceError.serverError(firstMessage)
         }
 
-        return decoded.data.pokemonSpecies
+        guard let data = decoded.data else {
+            throw PokemonServiceError.invalidData
+        }
+
+        return data.pokemonSpecies
     }
 }
 
@@ -115,7 +123,7 @@ private enum GraphQLValue: Encodable {
 }
 
 private struct GraphQLResponse: Decodable {
-    let data: GraphQLData
+    let data: GraphQLData?
     let errors: [GraphQLError]?
 }
 
@@ -133,12 +141,15 @@ private struct GraphQLError: Decodable {
 
 enum PokemonServiceError: LocalizedError {
     case invalidResponse
+    case invalidData
     case serverError(String)
 
     var errorDescription: String? {
         switch self {
         case .invalidResponse:
             return "The server response was invalid."
+        case .invalidData:
+            return "The server returned no usable Pokemon data."
         case let .serverError(message):
             return message
         }

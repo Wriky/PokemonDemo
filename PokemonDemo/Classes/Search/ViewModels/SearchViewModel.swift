@@ -17,12 +17,13 @@ final class SearchViewModel: ObservableObject {
     @Published private(set) var errorMessage: String?
     @Published private(set) var hasSearched = false
 
-    private let service: PokemonService
+    private let service: any PokemonServicing
     private let pageSize = 20
     private var currentOffset = 0
     private var canLoadMore = false
+    private var latestSearchRequestID = 0
 
-    init(service: PokemonService = PokemonService()) {
+    init(service: any PokemonServicing = PokemonService()) {
         self.service = service
     }
 
@@ -39,7 +40,11 @@ final class SearchViewModel: ObservableObject {
     }
 
     func search() async {
-        guard !trimmedKeyword.isEmpty else { return }
+        let keyword = trimmedKeyword
+        guard !keyword.isEmpty else { return }
+
+        latestSearchRequestID += 1
+        let requestID = latestSearchRequestID
 
         isLoading = true
         hasSearched = true
@@ -48,20 +53,24 @@ final class SearchViewModel: ObservableObject {
 
         do {
             let results = try await service.searchSpecies(
-                keyword: trimmedKeyword,
+                keyword: keyword,
                 limit: pageSize,
                 offset: currentOffset
             )
+            guard requestID == latestSearchRequestID else { return }
             speciesList = results
             currentOffset = results.count
             canLoadMore = results.count == pageSize
         } catch {
+            guard requestID == latestSearchRequestID else { return }
             speciesList = []
             canLoadMore = false
             errorMessage = error.localizedDescription
         }
 
-        isLoading = false
+        if requestID == latestSearchRequestID {
+            isLoading = false
+        }
     }
 
     func loadMore() async {
