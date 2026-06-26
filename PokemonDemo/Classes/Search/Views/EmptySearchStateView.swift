@@ -18,8 +18,8 @@ struct EmptySearchStateView: View {
                     .fill(
                         LinearGradient(
                             colors: [
-                                Color(red: 0.90, green: 0.12, blue: 0.17).opacity(0.15),
-                                Color(red: 0.08, green: 0.57, blue: 0.78).opacity(0.12)
+                                Color(red: 1.0, green: 0.36, blue: 0.38).opacity(0.14),
+                                Color(red: 0.28, green: 0.67, blue: 0.88).opacity(0.13)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
@@ -28,7 +28,7 @@ struct EmptySearchStateView: View {
 
                 Image(systemName: "scope")
                     .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(Color(red: 0.90, green: 0.12, blue: 0.17))
+                    .foregroundStyle(Color(red: 1.0, green: 0.36, blue: 0.38))
             }
             .frame(width: 78, height: 78)
 
@@ -48,13 +48,14 @@ struct EmptySearchStateView: View {
         .padding(.vertical, 38)
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+                .fill(Color(uiColor: .secondarySystemGroupedBackground).opacity(0.92))
         )
         .overlay {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
                 .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [7, 7]))
-                .foregroundStyle(Color.secondary.opacity(0.22))
+                .foregroundStyle(Color(red: 1.0, green: 0.36, blue: 0.38).opacity(0.16))
         }
+        .shadow(color: .black.opacity(0.05), radius: 14, y: 8)
         .accessibilityElement(children: .combine)
     }
 }

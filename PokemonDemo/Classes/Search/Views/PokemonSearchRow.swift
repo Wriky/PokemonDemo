@@ -11,15 +11,10 @@ struct PokemonSearchRow: View {
 
     var body: some View {
         HStack(spacing: 13) {
-            ZStack {
-                Circle()
-                    .fill(accentColor.opacity(0.14))
-
-                PokeballGlyph()
-                    .foregroundStyle(accentColor)
-                    .frame(width: 28, height: 28)
-            }
-            .frame(width: 48, height: 48)
+            PokemonSearchAvatar(
+                pokemonID: pokemon.id,
+                accentColor: accentColor
+            )
 
             VStack(alignment: .leading, spacing: 7) {
                 Text(pokemon.name.capitalized)
@@ -38,14 +33,32 @@ struct PokemonSearchRow: View {
                 .frame(width: 30, height: 30)
                 .background(
                     Circle()
-                        .fill(accentColor.opacity(0.11))
+                        .fill(accentColor.opacity(0.14))
                 )
         }
-        .padding(.horizontal, 10)
+        .padding(.horizontal, 12)
         .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(rowBackground)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(accentColor.opacity(0.11), lineWidth: 1)
+        }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityHint("Opens Pokémon detail")
+    }
+
+    private var rowBackground: Color {
+        Color(
+            uiColor: UIColor { traits in
+                traits.userInterfaceStyle == .dark
+                    ? UIColor(red: 0.155, green: 0.16, blue: 0.18, alpha: 1)
+                    : UIColor(red: 1.0, green: 0.965, blue: 0.925, alpha: 1)
+            }
+        )
     }
 
     @ViewBuilder
@@ -66,8 +79,12 @@ struct PokemonSearchRow: View {
                         .padding(.vertical, 4)
                         .background(
                             Capsule(style: .continuous)
-                                .fill(Color(uiColor: .tertiarySystemFill))
+                                .fill(accentColor.opacity(0.13))
                         )
+                        .overlay {
+                            Capsule(style: .continuous)
+                                .stroke(accentColor.opacity(0.18), lineWidth: 1)
+                        }
                 }
 
                 if pokemon.abilityNames.count > 2 {
@@ -77,6 +94,63 @@ struct PokemonSearchRow: View {
                 }
             }
         }
+    }
+}
+
+private struct PokemonSearchAvatar: View {
+    let pokemonID: Int
+    let accentColor: Color
+
+    @State private var image: UIImage?
+    @State private var loadFailed = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            accentColor.opacity(0.22),
+                            Color.white.opacity(0.72)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            Circle()
+                .stroke(.white.opacity(0.78), lineWidth: 2)
+
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFit()
+                    .padding(4)
+            } else {
+                PokeballGlyph()
+                    .foregroundStyle(accentColor)
+                    .frame(width: loadFailed ? 25 : 22, height: loadFailed ? 25 : 22)
+                    .opacity(loadFailed ? 0.9 : 0.55)
+            }
+        }
+        .frame(width: 54, height: 54)
+        .shadow(color: accentColor.opacity(0.18), radius: 9, y: 5)
+        .task(id: pokemonID) {
+            await loadArtwork()
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func loadArtwork() async {
+        image = nil
+        loadFailed = false
+
+        let loadedImage = await PokemonArtworkLoader.loadImage(for: pokemonID)
+
+        guard !Task.isCancelled else { return }
+
+        image = loadedImage
+        loadFailed = loadedImage == nil
     }
 }
 
@@ -90,7 +164,7 @@ private struct PokeballGlyph: View {
                 .frame(height: 2.5)
 
             Circle()
-                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+                .fill(Color(uiColor: .systemBackground))
                 .frame(width: 10, height: 10)
 
             Circle()

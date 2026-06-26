@@ -17,7 +17,7 @@ struct PokemonSpeciesSectionHeader: View {
                     Text(String(format: "SPECIES #PCS-%03d", species.id))
                         .font(.system(.caption2, design: .monospaced, weight: .bold))
                         .tracking(0.8)
-                        .foregroundStyle(accent)
+                        .foregroundStyle(accent.opacity(0.88))
 
                     Text(species.name.capitalized)
                         .font(.system(.title2, design: .rounded, weight: .black))
@@ -31,7 +31,7 @@ struct PokemonSpeciesSectionHeader: View {
                 VStack(alignment: .trailing, spacing: 3) {
                     Text("CAPTURE")
                         .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .tracking(0.7)
+                        .tracking(0.5)
                         .foregroundStyle(.secondary)
 
                     Text(PokemonSearchPresentation.captureRate(species.captureRate))
@@ -58,8 +58,12 @@ struct PokemonSpeciesSectionHeader: View {
                     .padding(.vertical, 5)
                     .background(
                         Capsule(style: .continuous)
-                            .fill(accent.opacity(0.13))
+                            .fill(accent.opacity(0.10))
                     )
+                    .overlay {
+                        Capsule(style: .continuous)
+                            .stroke(accent.opacity(0.12), lineWidth: 1)
+                    }
             }
         }
         .padding(.leading, 20)
@@ -68,7 +72,7 @@ struct PokemonSpeciesSectionHeader: View {
         .padding(.bottom, 15)
         .background(
             LinearGradient(
-                colors: [accent.opacity(0.13), accent.opacity(0.025)],
+                colors: [accent.opacity(0.055), accent.opacity(0.012)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

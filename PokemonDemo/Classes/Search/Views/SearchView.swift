@@ -24,9 +24,13 @@ struct SearchView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .top) {
                 PokemonSearchTheme.pageBackground
                     .ignoresSafeArea()
+
+                headerBackground
+                    .frame(height: 214)
+                    .ignoresSafeArea(edges: .top)
 
                 VStack(spacing: 0) {
                     pokedexHeader
@@ -56,56 +60,56 @@ struct SearchView: View {
         .tint(PokemonSearchTheme.pokedexRed)
     }
 
+    private var headerBackground: some View {
+        ZStack(alignment: .trailing) {
+            LinearGradient(
+                colors: [
+                    PokemonSearchTheme.headerCoral,
+                    PokemonSearchTheme.headerPeach
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+
+            PokeballMark()
+                .frame(width: 172, height: 172)
+                .foregroundStyle(.white.opacity(0.13))
+                .offset(x: 36, y: 38)
+        }
+        .clipShape(.rect(bottomLeadingRadius: 28, bottomTrailingRadius: 28, style: .continuous))
+        .shadow(color: PokemonSearchTheme.coral.opacity(0.16), radius: 16, y: 8)
+    }
+
     private var pokedexHeader: some View {
-        VStack(alignment: .leading, spacing: 18) {
+        VStack(alignment: .leading, spacing: 20) {
             HStack(alignment: .center, spacing: 14) {
                 PokedexLens()
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("POKÉDEX")
-                        .font(.system(.title2, design: .rounded, weight: .black))
-                        .tracking(1.4)
+                    Text("Pokédex")
+                        .font(.system(.title, design: .rounded, weight: .black))
 
                     Text("SPECIES SCANNER")
                         .font(.system(.caption2, design: .rounded, weight: .bold))
-                        .tracking(1.8)
-                        .foregroundStyle(.white.opacity(0.72))
+                        .tracking(1.4)
+                        .foregroundStyle(PokemonSearchTheme.headerInk.opacity(0.62))
                 }
 
                 Spacer()
 
                 HStack(spacing: 7) {
-                    indicator(color: .red)
-                    indicator(color: .yellow)
-                    indicator(color: .green)
+                    indicator(color: PokemonSearchTheme.coral)
+                    indicator(color: PokemonSearchTheme.butter)
+                    indicator(color: PokemonSearchTheme.mint)
                 }
             }
 
             searchControl
         }
-        .foregroundStyle(.white)
+        .foregroundStyle(PokemonSearchTheme.headerInk)
         .padding(.horizontal, 18)
-        .padding(.top, 12)
-        .padding(.bottom, 20)
-        .background {
-            ZStack(alignment: .trailing) {
-                LinearGradient(
-                    colors: [
-                        PokemonSearchTheme.pokedexRed,
-                        PokemonSearchTheme.pokedexDarkRed
-                    ],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-
-                PokeballMark()
-                    .frame(width: 154, height: 154)
-                    .foregroundStyle(.white.opacity(0.08))
-                    .offset(x: 34, y: 28)
-            }
-            .ignoresSafeArea(edges: .top)
-        }
-        .shadow(color: PokemonSearchTheme.pokedexDarkRed.opacity(0.22), radius: 12, y: 7)
+        .padding(.top, 14)
+        .padding(.bottom, 22)
     }
 
     private var searchControl: some View {
@@ -113,7 +117,7 @@ struct SearchView: View {
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(PokemonSearchTheme.inkMuted)
+                    .foregroundStyle(PokemonSearchTheme.coral)
 
                 TextField("Search a Pokémon species", text: $viewModel.keyword)
                     .font(.system(.body, design: .rounded, weight: .medium))
@@ -141,12 +145,13 @@ struct SearchView: View {
             .frame(height: 52)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(uiColor: .systemBackground))
+                    .fill(Color(uiColor: .systemBackground).opacity(0.94))
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(.white.opacity(0.55), lineWidth: 1)
+                    .stroke(.white.opacity(0.78), lineWidth: 1)
             }
+            .shadow(color: PokemonSearchTheme.coral.opacity(0.08), radius: 12, y: 6)
 
             Button {
                 performSearch()
@@ -160,15 +165,17 @@ struct SearchView: View {
                             .font(.system(size: 19, weight: .bold))
                     }
                 }
+                .foregroundStyle(.white)
                 .frame(width: 52, height: 52)
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(
                             viewModel.isSearchDisabled
-                                ? Color.white.opacity(0.18)
-                                : PokemonSearchTheme.screenBlue
+                                ? PokemonSearchTheme.headerInk.opacity(0.14)
+                                : PokemonSearchTheme.sky
                         )
                 )
+                .shadow(color: PokemonSearchTheme.sky.opacity(viewModel.isSearchDisabled ? 0 : 0.24), radius: 10, y: 6)
             }
             .buttonStyle(PokedexPressButtonStyle())
             .disabled(viewModel.isSearchDisabled || viewModel.isLoading)
@@ -198,8 +205,12 @@ struct SearchView: View {
             .padding(16)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(PokemonSearchTheme.warning.opacity(0.12))
+                    .fill(PokemonSearchTheme.warning.opacity(0.11))
             )
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(PokemonSearchTheme.warning.opacity(0.16), lineWidth: 1)
+            }
         } else if !viewModel.isLoading && viewModel.speciesList.isEmpty {
             EmptySearchStateView(
                 title: viewModel.hasSearched ? "No Match Detected" : "Scanner Ready",
@@ -223,8 +234,8 @@ struct SearchView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(18)
             } else {
-                VStack(spacing: 0) {
-                    ForEach(Array(species.pokemons.enumerated()), id: \.element.id) { index, pokemon in
+                VStack(spacing: 8) {
+                    ForEach(species.pokemons) { pokemon in
                         NavigationLink {
                             PokemonDetailView(
                                 pokemonID: pokemon.id,
@@ -237,34 +248,29 @@ struct SearchView: View {
                             )
                         }
                         .buttonStyle(.plain)
-
-                        if index < species.pokemons.count - 1 {
-                            Divider()
-                                .overlay(PokemonSearchTheme.divider)
-                                .padding(.leading, 72)
-                        }
                     }
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 10)
             }
         }
         .background(
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+                .fill(PokemonSearchTheme.cardBackground)
         )
         .overlay(alignment: .leading) {
-            RoundedRectangle(cornerRadius: 3, style: .continuous)
+            Capsule(style: .continuous)
                 .fill(accent)
-                .frame(width: 5)
-                .padding(.vertical, 20)
+                .frame(width: 6)
+                .padding(.vertical, 22)
+                .padding(.leading, 1)
         }
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .stroke(accent.opacity(0.16), lineWidth: 1)
+                .stroke(accent.opacity(0.13), lineWidth: 1)
         }
-        .shadow(color: PokemonSearchTheme.shadow, radius: 14, y: 7)
+        .shadow(color: PokemonSearchTheme.shadow, radius: 18, y: 9)
     }
 
     @ViewBuilder
@@ -277,11 +283,11 @@ struct SearchView: View {
                     Text("SCANNING NEXT SECTOR")
                 } else if viewModel.shouldShowNoMoreData {
                     Image(systemName: "checkmark.seal.fill")
-                        .foregroundStyle(PokemonSearchTheme.screenBlue)
+                        .foregroundStyle(PokemonSearchTheme.sky)
                     Text("DATABASE SCAN COMPLETE")
                 } else {
                     Image(systemName: "wave.3.right")
-                        .foregroundStyle(PokemonSearchTheme.pokedexRed)
+                        .foregroundStyle(PokemonSearchTheme.coral)
                     Text("LOADING MORE RECORDS")
                 }
             }
@@ -290,6 +296,10 @@ struct SearchView: View {
             .foregroundStyle(PokemonSearchTheme.inkMuted)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 14)
+            .background(
+                Capsule(style: .continuous)
+                    .fill(PokemonSearchTheme.cardBackground.opacity(0.72))
+            )
             .task {
                 guard viewModel.shouldShowLoadMore else { return }
                 await viewModel.loadMore()
@@ -301,8 +311,8 @@ struct SearchView: View {
         Circle()
             .fill(color)
             .frame(width: 10, height: 10)
-            .overlay(Circle().stroke(.black.opacity(0.18), lineWidth: 1))
-            .shadow(color: color.opacity(0.6), radius: 3)
+            .overlay(Circle().stroke(.white.opacity(0.76), lineWidth: 1))
+            .shadow(color: color.opacity(0.32), radius: 3)
             .accessibilityHidden(true)
     }
 
@@ -317,21 +327,56 @@ struct SearchView: View {
 }
 
 private enum PokemonSearchTheme {
-    static let pokedexRed = Color(red: 1.0, green: 0.28, blue: 0.30)
-    static let pokedexDarkRed = Color(red: 0.98, green: 0.42, blue: 0.38)
-    static let screenBlue = Color(red: 0.08, green: 0.57, blue: 0.78)
+    static let pokedexRed = coral
+    static let pokedexDarkRed = coralDeep
+    static let screenBlue = sky
+    static let coral = Color(red: 1.0, green: 0.29, blue: 0.33)
+    static let coralDeep = Color(red: 0.86, green: 0.13, blue: 0.22)
+    static let headerCoral = Color(red: 1.0, green: 0.39, blue: 0.43)
+    static let headerPeach = Color(red: 1.0, green: 0.52, blue: 0.47)
+    static let sky = Color(red: 0.12, green: 0.58, blue: 0.80)
+    static let butter = Color(red: 1.0, green: 0.79, blue: 0.28)
+    static let mint = Color(red: 0.43, green: 0.78, blue: 0.58)
+    static let headerCream = Color(
+        uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 0.16, green: 0.13, blue: 0.12, alpha: 1)
+                : UIColor(red: 1.0, green: 0.94, blue: 0.88, alpha: 1)
+        }
+    )
+    static let headerBlush = Color(
+        uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 0.24, green: 0.12, blue: 0.13, alpha: 1)
+                : UIColor(red: 1.0, green: 0.82, blue: 0.80, alpha: 1)
+        }
+    )
+    static let headerInk = Color(
+        uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 1.0, green: 0.98, blue: 0.95, alpha: 1)
+                : UIColor.white
+        }
+    )
+    static let cardBackground = Color(
+        uiColor: UIColor { traits in
+            traits.userInterfaceStyle == .dark
+                ? UIColor(red: 0.12, green: 0.125, blue: 0.14, alpha: 1)
+                : UIColor(red: 1.0, green: 0.985, blue: 0.955, alpha: 1)
+        }
+    )
     static let pageBackground = Color(
         uiColor: UIColor { traits in
             traits.userInterfaceStyle == .dark
-                ? UIColor(red: 0.055, green: 0.07, blue: 0.09, alpha: 1)
-                : UIColor(red: 0.94, green: 0.96, blue: 0.98, alpha: 1)
+                ? UIColor(red: 0.07, green: 0.075, blue: 0.085, alpha: 1)
+                : UIColor(red: 0.98, green: 0.94, blue: 0.88, alpha: 1)
         }
     )
     static let ink = Color(uiColor: .label)
     static let inkMuted = Color(uiColor: .secondaryLabel)
-    static let divider = Color(uiColor: .separator).opacity(0.45)
+    static let divider = Color(red: 1.0, green: 0.29, blue: 0.33).opacity(0.10)
     static let warning = Color(red: 0.92, green: 0.53, blue: 0.08)
-    static let shadow = Color.black.opacity(0.08)
+    static let shadow = Color.black.opacity(0.10)
 }
 
 private struct PokedexLens: View {
@@ -343,7 +388,7 @@ private struct PokedexLens: View {
             Circle()
                 .fill(
                     RadialGradient(
-                        colors: [.white, PokemonSearchTheme.screenBlue.opacity(0.9)],
+                        colors: [.white, PokemonSearchTheme.sky.opacity(0.9)],
                         center: .topLeading,
                         startRadius: 2,
                         endRadius: 28
@@ -355,8 +400,8 @@ private struct PokedexLens: View {
                 .stroke(.black.opacity(0.18), lineWidth: 2)
                 .padding(5)
         }
-        .frame(width: 48, height: 48)
-        .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
+        .frame(width: 50, height: 50)
+        .shadow(color: PokemonSearchTheme.sky.opacity(0.24), radius: 8, y: 4)
         .accessibilityHidden(true)
     }
 }
@@ -371,7 +416,7 @@ private struct PokeballMark: View {
                 .frame(height: 16)
 
             Circle()
-                .fill(PokemonSearchTheme.pokedexDarkRed)
+                .fill(PokemonSearchTheme.coralDeep)
                 .frame(width: 54, height: 54)
 
             Circle()
